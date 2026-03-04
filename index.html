@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Talks Today</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #f8f9fa;
+            --font-color: #333;
+            --border-color: #dee2e6;
+            --card-bg: #fff;
+            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-color);
+            color: var(--font-color);
+        }
+
+        header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 1rem 0;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .schedule-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .schedule-item {
+            background: var(--card-bg);
+            border-left: 5px solid var(--primary-color);
+            border-radius: 5px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .schedule-item.break {
+            border-left-color: #6c757d;
+        }
+
+        .time-slot {
+            font-weight: 700;
+            white-space: nowrap;
+            font-size: 1.1rem;
+            flex-basis: 120px;
+        }
+
+        .talk-details {
+            flex-grow: 1;
+        }
+
+        .talk-details h2 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .break .talk-details h2 {
+            font-size: 1.2rem;
+        }
+
+        .talk-details .speakers {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+
+        .talk-details .description {
+            margin-bottom: 1rem;
+        }
+
+        .talk-details .categories {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .categories span {
+            background-color: var(--secondary-color);
+            border: 1px solid var(--border-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Tech Talks Today</h1>
+        <p>A one-day virtual conference for developers.</p>
+    </header>
+    <main>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search by category (e.g., AI, JavaScript)...">
+        </div>
+        <div id="scheduleContainer" class="schedule-container">
+            <!-- Talks will be rendered here by JavaScript -->
+        </div>
+    </main>
+    <script>
+        const talks = [
+            {
+                title: "The Future of AI in Web Development",
+                speakers: ["Dr. Evelyn Reed"],
+                categories: ["AI", "WebDev", "Future Tech"],
+                description: "An in-depth look at how artificial intelligence is shaping the future of web development, from automated coding to personalized user experiences."
+            },
+            {
+                title: "Advanced CSS: Beyond Flexbox and Grid",
+                speakers: ["Alex Chen", "Ben Carter"],
+                categories: ["CSS", "Frontend"],
+                description: "Explore cutting-edge CSS features like Houdini, container queries, and subgrid to create next-generation web layouts."
+            },
+            {
+                title: "Building Scalable APIs with Node.js and GraphQL",
+                speakers: ["Samantha Jones"],
+                categories: ["Node.js", "API", "GraphQL"],
+                description: "Learn best practices for designing and building robust, scalable, and efficient APIs using the power of Node.js and GraphQL."
+            },
+            {
+                title: "The State of Modern JavaScript Frameworks",
+                speakers: ["David Lee"],
+                categories: ["JavaScript", "Frontend", "React"],
+                description: "A comprehensive overview and comparison of today's leading JavaScript frameworks, helping you choose the right tool for your next project."
+            },
+            {
+                title: "Cybersecurity for Developers: A Practical Guide",
+                speakers: ["Maria Rodriguez"],
+                categories: ["Security", "WebDev"],
+                description: "Understand common security vulnerabilities in web applications and learn how to write more secure code from the ground up."
+            },
+            {
+                title: "From Monolith to Microservices: A Journey",
+                speakers: ["Frank Williams", "Grace Kim"],
+                categories: ["Architecture", "Backend"],
+                description: "A case study on migrating a large monolithic application to a microservices architecture, including the challenges and benefits."
+            }
+        ];
+
+        const scheduleContainer = document.getElementById('scheduleContainer');
+        const searchInput = document.getElementById('searchInput');
+
+        const renderSchedule = (filteredTalks) => {
+            scheduleContainer.innerHTML = '';
+            let currentTime = new Date();
+            currentTime.setHours(10, 0, 0, 0);
+
+            const formatTime = (date) => date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+            let talkCounter = 0;
+            
+            filteredTalks.forEach((talk, index) => {
+                // Find original index to manage schedule breaks
+                const originalIndex = talks.findIndex(t => t.title === talk.title);
+
+                if (originalIndex === 3 && talkCounter === 3) {
+                     // LUNCH BREAK
+                    const breakStartTime = new Date(currentTime);
+                    currentTime.setHours(currentTime.getHours() + 1);
+                    const breakEndTime = new Date(currentTime);
+
+                    const breakItem = document.createElement('div');
+                    breakItem.className = 'schedule-item break';
+                    breakItem.innerHTML = `
+                        <div class="time-slot">${formatTime(breakStartTime)} - ${formatTime(breakEndTime)}</div>
+                        <div class="talk-details">
+                            <h2>Lunch Break</h2>
+                        </div>
+                    `;
+                    scheduleContainer.appendChild(breakItem);
+                    currentTime.setMinutes(currentTime.getMinutes() + 10); // Transition after break
+                }
+                
+                const startTime = new Date(currentTime);
+                currentTime.setHours(currentTime.getHours() + 1);
+                const endTime = new Date(currentTime);
+
+                const scheduleItem = document.createElement('div');
+                scheduleItem.className = 'schedule-item';
+                scheduleItem.innerHTML = `
+                    <div class="time-slot">${formatTime(startTime)} - ${formatTime(endTime)}</div>
+                    <div class="talk-details">
+                        <h2>${talk.title}</h2>
+                        <div class="speakers">By: ${talk.speakers.join(', ')}</div>
+                        <div class="description">${talk.description}</div>
+                        <div class="categories">
+                            ${talk.categories.map(cat => `<span>${cat}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                scheduleContainer.appendChild(scheduleItem);
+
+                talkCounter++;
+                if (talkCounter < talks.length && !(originalIndex === 2 && talkCounter === 3)) {
+                     currentTime.setMinutes(currentTime.getMinutes() + 10); // 10 min transition
+                }
+            });
+            
+             // Handle case where search filters out talks before the break
+            if (filteredTalks.length > 0 && talkCounter < 4 && talks.length > 3) {
+                 const firstVisibleIndex = talks.findIndex(t => t.title === filteredTalks[0].title);
+                 if (firstVisibleIndex >= 3) {
+                      // No break needed as we start after it.
+                 } else if (scheduleContainer.querySelector('.break') === null) {
+                    const lastVisibleIndex = talks.findIndex(t => t.title === filteredTalks[filteredTalks.length - 1].title);
+                    if (lastVisibleIndex >= 2) {
+                        // This logic is simplified; a full implementation might need more robust break handling on search
+                    }
+                 }
+            }
+
+
+        };
+
+        const filterTalks = () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            if (searchTerm.length > 0) {
+                const filteredTalks = talks.filter(talk =>
+                    talk.categories.some(cat => cat.toLowerCase().includes(searchTerm))
+                );
+                renderSchedule(filteredTalks);
+            } else {
+                renderSchedule(talks);
+            }
+        };
+
+        searchInput.addEventListener('keyup', filterTalks);
+
+        // Initial render
+        renderSchedule(talks);
+    </script>
+</body>
+</html>
